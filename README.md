@@ -1,7 +1,7 @@
 tinyFA
 -----------------
 Parse, index and get random access to FASTA files
-with no dependencies and no cruft.
+with no extra dependencies.
 
 ### Overview
 tinyFA provides a (relatively) fast and highly minimalist header-only library
@@ -49,14 +49,16 @@ int main (int argc, char** argv){
         parseFAIndex(argv[1], tf);
     }
 
-    char* test = argv[2];
+    char* contigName = argv[2];
     int start = atoi(argv[3]);
     int end = atoi(argv[4]);
     char* seq;
     
     // Not passing start/end will return the whole contig.
-    getSequence(tf, test, seq, start, end);
+    getSequence(tf, contigName, seq, start, end);
     cout << seq << endl;
+
+    // seq gets allocated in getSequence, so you'll want to delete that.
     delete [] seq;
 
     return 0;
@@ -80,6 +82,9 @@ zlib, lzma, and lz4 (which are often not up to date / installed by default).
 
 However, htslib can parse files compressed with BGZF; this may be an important
 addition when dealing with large files.
+
+SeqLib and SeqAn are both excellent tools that add to htslib, with the same cons and
+many extra pros.
 
 
 
