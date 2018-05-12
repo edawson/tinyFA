@@ -1,6 +1,6 @@
 tinyFA
 -----------------
-Index FASTA files, random access sequences, parse raw FASTA
+Parse, index and get random access to FASTA files
 with no dependencies and no cruft.
 
 ### Overview
@@ -61,6 +61,7 @@ int main (int argc, char** argv){
 
     return 0;
 }
+```
 
 ### Other tools
 tinyFA takes a lot of code and inspiration from the
