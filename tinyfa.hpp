@@ -281,6 +281,15 @@ inline void parseFAIndex(const char* fastaFileName, tiny_faidx_t& fai){
     delete ifn;
 };
 
+inline void getSequenceLength(const tiny_faidx_t& fai, const char* seqname, uint32_t& length){
+
+    tiny_faidx_entry_t* entry;
+    if (fai.hasSeqID(seqname)){
+        fai.get(seqname, entry);
+        length = entry->seq_len;
+    }
+};
+
 inline void getSequence( const tiny_faidx_t& fai, const char* seqname, char*& seq){
     uint32_t sz = 0;
     
@@ -289,7 +298,7 @@ inline void getSequence( const tiny_faidx_t& fai, const char* seqname, char*& se
         fai.get(seqname, entry);
         sz = entry->seq_len + 1;
         seq = new char[sz];
-        seq[sz] = '\0';
+        seq[sz - 1] = '\0';
         fseek64(fai.fasta, entry->offset, SEEK_SET);
         if (fread(seq, sizeof(char), entry->seq_len, fai.fasta)){
             pliib::remove_nulls_and_whitespace(seq, entry->seq_len);
