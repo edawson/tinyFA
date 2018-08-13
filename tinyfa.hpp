@@ -1,6 +1,8 @@
 #ifndef TINY_FA_HPP
 #define TINY_FA_HPP
 
+#include <sys/types.h>
+
 #pragma once
 #define _FILE_OFFSET_BITS 64
 #ifdef WIN32
