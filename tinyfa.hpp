@@ -99,8 +99,11 @@ struct custom_faidx_entry_t_comparator
 
 struct tiny_faidx_t{
     std::map<char*, tiny_faidx_entry_t*, custom_char_comparator> seq_to_entry;
-    FILE* fasta;
+    FILE* fasta = NULL;
     void close(){
+        if (fasta != NULL){
+            fclose(fasta);
+        }
         for (auto k : seq_to_entry){
             delete k.second->name;
             delete k.second;
@@ -155,6 +158,10 @@ inline void createFAIndex(const char* fastaName, tiny_faidx_t& fai){
 
     std::ifstream faFile;
     faFile.open(fastaName);
+
+    if (!(fai.fasta = fopen(fastaName, "r"))){
+        cerr << "Error: couldn't open fasta file " << fastaName << endl;
+    }
 
     tiny_faidx_entry_t* entry = new tiny_faidx_entry_t();
 
