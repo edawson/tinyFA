@@ -1,6 +1,6 @@
 CXX:=g++
 CXXFLAGS:= -O3 -fPIC -std=c++11 -pipe -D_FILE_OFFSET_BITS=64
-LD_INC_FLAGS:= -I./
+LD_INC_FLAGS:= -I./ -I./pliib
 
 utils: getseq indexseq
 
@@ -11,4 +11,8 @@ getseq: examples/getseq.cpp pliib.hpp tinyfa.hpp
 indexseq: examples/index.cpp pliib.hpp tinyfa.hpp
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LD_INC_FLAGS)
 
-.PHONY: utils
+clean:
+	$(RM) getseq
+	$(RM) indexseq
+
+.PHONY: utils clean
