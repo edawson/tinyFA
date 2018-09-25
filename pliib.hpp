@@ -13,7 +13,7 @@
 using namespace std;
 
 namespace pliib{
-    // Crazy hack char table to test for canonical bases
+    // Char table to test for canonical bases
     static const int valid_dna[127] = {
         1,
         1,1,1,1,1,1,1,1,1,1,
@@ -86,7 +86,7 @@ namespace pliib{
 
     /* Capitalize a string */
     inline string to_upper(string& seq){
-        for (int i = 0; i < seq.length(); i++){
+        for (size_t i = 0; i < seq.length(); i++){
             char c = seq[i];
             seq[i] =  ((c - 91) > 0 ? c - 32 : c);
         }
@@ -103,15 +103,12 @@ namespace pliib{
     };
 
     inline void destroy_splits(char**& splits, const int& num_splits, int*& split_sizes){
-        //for (int i = 0; i < num_splits; ++i){
-        //    delete [] splits[i];
-        //}
         delete [] splits;
         delete [] split_sizes;
     };
 
     // Modified from: https://techoverflow.net/2017/01/23/zero-copy-in-place-string-splitting-in-c/
-    inline void split(char* s, char delimiter, char**& ret, int& retsize, int*& split_sizes){
+    inline void split(char*& s, char delimiter, char**& ret, int& retsize, int*& split_sizes){
         int num_delim = 0;
         countChar(s, delimiter, num_delim);
 
@@ -145,13 +142,13 @@ namespace pliib{
     inline void split(string s, char delim, vector<string>& ret){
 
         int slen = s.length();
-        char s_to_split[slen + 1];
-        strcpy(s_to_split, s.c_str());
+        char* s_to_split = new char[slen + 1];
+        strncpy(s_to_split, s.c_str(), slen);
+        s_to_split[slen] = '\0';
 
         char** splitret;
         int retsz;
         int* splitsz;
-
 
         split(s_to_split, delim, splitret, retsz, splitsz);
         ret.resize(retsz);
@@ -160,6 +157,7 @@ namespace pliib{
             ret[i].assign(string( splitret[i])); 
         }
         destroy_splits(splitret, retsz, splitsz);
+        delete [] s_to_split;
 
     };
 
@@ -167,8 +165,10 @@ namespace pliib{
     
         vector<string> ret;
         int slen = s.length();
-        char s_to_split[slen + 1];
-        strcpy(s_to_split, s.c_str());
+        char* s_to_split = new char[slen + 1];
+
+        strncpy(s_to_split, s.c_str(), slen);
+        s_to_split[slen] = '\0';
 
         char** splitret;
         int retsz;
@@ -183,6 +183,7 @@ namespace pliib{
             ret[i].assign(string( splitret[i])); 
         }
         destroy_splits(splitret, retsz, splitsz);
+        delete [] s_to_split;
 
         return ret;
 
@@ -199,7 +200,7 @@ namespace pliib{
     }
     inline string join(const vector<string>& splits, char glue){
         stringstream ret;
-        for (int i = 0; i < splits.size(); i++){
+        for (size_t i = 0; i < splits.size(); i++){
             if (i != 0){
                 ret << glue;
             }
@@ -277,14 +278,12 @@ namespace pliib{
      *  where whitespace is ' ' or '\t' or '\n'.
      *  Complexity: linear time in |s| **/
     inline void remove_nulls_and_whitespace(char*& s, const int& len){
-        int write_index = 0;
-        int read_index = 0;
-        for (int i = 0; i < len, read_index < len; ++i){
+        size_t write_index = 0;
+        for (size_t i = 0; i < len; ++i){
             if (s[i] != '\n' && s[i] != '\t' && s[i] != '\0' && s[i] != ' '){
-                s[write_index] = s[read_index];
+                s[write_index] = s[i];
                 ++write_index;
             }
-            ++read_index;
         }
         s[write_index] = '\0';
     };
@@ -362,22 +361,36 @@ namespace pliib{
 
 
     /** 
-     * Applies a lambda function lambda to all elements of a vector v, returning
+     * Applies a lambda function <lambda> to all elements of a vector v, returning
      * a results vector the same size and type as v.
      */
     template <typename DataType, typename A>
-        inline std::vector<DataType, A> p_vv_map(std::vector<DataType, A> v, typename std::function<DataType(DataType)> lambda){
+        inline std::vector<DataType, A> p_vv_map(const std::vector<DataType, A> v, typename std::function<DataType(DataType)> lambda){
             std::vector<DataType> results(v.size());
-            int sz = v.size();
-            // As we guarantee synchronicity,
-            // we should TODO something to guarantee it.
+            size_t sz = v.size();
             #pragma omp parallel for
-            for (int i = 0; i < sz; ++i){
+            for (size_t i = 0; i < sz; ++i){
                 results[i] = lambda(v[i]);
             }
 
             return results;
         }
+
+    /**
+     *  Applies a lambda function <lambda> to all elements of v, and returns those elements in v
+     *  for which lambda returns true.
+     */
+    template<typename DataType, typename A>
+        inline std::vector<DataType, A> p_vv_filter(const std::vector<DataType, A>& v, typename std::function<bool(DataType)> lambda){
+            std::vector<DataType> results;
+            size_t sz = v.size();
+            for (size_t i = 0; i < sz; ++i){
+                if (lambda(v[i])){
+                    results.push_back(v[i]);
+                }
+            }
+            return results;
+        };
 
 
     /**
@@ -385,9 +398,9 @@ namespace pliib{
      * vector v, modifying the elements of v in place.
      */
     template<typename DataType, typename A>
-        inline void p_vv_apply(std::vector<DataType, A> &v, typename std::function<DataType(DataType)> lambda){
+        inline void p_vv_apply(std::vector<DataType, A>& v, typename std::function<DataType(DataType)> lambda){
             #pragma omp parallel for //private(i)
-            for (int i = 0; i < v.size(); i++){
+            for (size_t i = 0; i < v.size(); i++){
                 auto r = lambda(v[i]);
 
                 #pragma omp atomic write
