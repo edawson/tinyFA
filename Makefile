@@ -5,10 +5,10 @@ LD_INC_FLAGS:= -I./ -I./pliib
 utils: getseq indexseq
 
 
-getseq: examples/getseq.cpp pliib.hpp tinyfa.hpp
+getseq: examples/getseq.cpp pliib/pliib.hpp tinyfa.hpp
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LD_INC_FLAGS)
 
-indexseq: examples/index.cpp pliib.hpp tinyfa.hpp
+indexseq: examples/index.cpp pliib/pliib.hpp tinyfa.hpp
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LD_INC_FLAGS)
 
 clean:
