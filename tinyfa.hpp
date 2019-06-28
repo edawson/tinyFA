@@ -277,6 +277,10 @@ inline void getSequenceLength(const tiny_faidx_t& fai, const char* seqname, uint
     }
 };
 
+inline bool hasSequence(const tiny_faidx_t& fai, const char* seqname){
+    return fai.hasSeqID(seqname);
+};
+
 inline void getSequence( const tiny_faidx_t& fai, const char* seqname, char*& seq){
     uint32_t sz = 0;
     
