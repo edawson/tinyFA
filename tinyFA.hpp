@@ -49,7 +49,7 @@ struct custom_char_comparator
 
 
 struct tiny_faidx_entry_t {
-    char* name = NULL;
+    char* name = nullptr;
     int name_len = 0;
     std::int32_t line_char_len = -1;
     std::int32_t line_byte_len = 0;
@@ -57,7 +57,7 @@ struct tiny_faidx_entry_t {
     std::int64_t raw_len = 0;
     std::int64_t offset = -1;
     tiny_faidx_entry_t(){
-        name = NULL;
+        name = nullptr;
         name_len = 0;
         line_char_len = -1;
         line_byte_len = 0;
@@ -68,14 +68,16 @@ struct tiny_faidx_entry_t {
     tiny_faidx_entry_t(std::vector<std::string> splits){
         assert(splits.size() == 5);
         this->name_len = splits[0].length();
-        this->name = new char[this->name_len + 1];
-        memcpy(this->name, splits[0].c_str(), splits[0].length() * sizeof(char));
-        this->name[this->name_len] = '\0';
+        pliib::strcopy(splits[0].c_str(), this->name);
         this->seq_len = std::stoll(splits[1]);
         this->offset = std::stoull(splits[2]);
         this->line_char_len = std::stoi(splits[3]);
         this->line_byte_len = std::stoi(splits[4]);
     };
+
+    ~tiny_faidx_entry_t(){
+        //pliib::strdelete(this->name);
+    }
     // Five columns
     // seqname  seqlen  offset  line_char_len   line_byte_len
     std::string to_string(){
@@ -103,7 +105,7 @@ struct tiny_faidx_t{
         if (fasta != NULL){
             fclose(fasta);
         }
-        for (auto k : seq_to_entry){
+        for (auto& k : seq_to_entry){
             delete [] k.second->name;
             delete k.second;
         }
@@ -126,11 +128,11 @@ struct tiny_faidx_t{
 
     void write(std::ostream& os) const {
         std::vector<tiny_faidx_entry_t*> sorted_entries;
-        for (auto x : seq_to_entry){
+        for (auto& x : seq_to_entry){
                 sorted_entries.push_back(x.second);
         }
         std::sort(sorted_entries.begin(), sorted_entries.end(), custom_faidx_entry_t_comparator());
-        for (auto x : sorted_entries){
+        for (auto& x : sorted_entries){
             x->write_to_stream(os);
         }
     };
