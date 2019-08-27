@@ -215,7 +215,7 @@ inline void createFAIndex(const char* fastaName, tiny_faidx_t& fai){
         }
     }
     faFile.close();
-};
+}
 
 inline void writeFAIndex(const char* fastaName, const tiny_faidx_t& fai){
     // Create index outfile with the correct name
@@ -225,14 +225,14 @@ inline void writeFAIndex(const char* fastaName, const tiny_faidx_t& fai){
     if (ofi.good()){
         fai.write(ofi);
     }
-};
+}
 
 inline bool checkFAIndexFileExists(const char* fastaName){
     struct stat statFileInfo; 
     std::string indexFileName(fastaName);
     indexFileName = indexFileName + ".fai"; 
     return stat(indexFileName.c_str(), &statFileInfo) == 0;
-};
+}
 
 inline char* indexFileName(const char* fastaName){
     int len = strlen(fastaName);
@@ -242,7 +242,7 @@ inline char* indexFileName(const char* fastaName){
     strcpy(ret, fastaName);
     strcpy(ret + len, file_ext);
     return ret;
-};
+}
 
 inline void parseFAIndex(const char* fastaFileName, tiny_faidx_t& fai){
     std::ifstream ifi;
@@ -268,7 +268,7 @@ inline void parseFAIndex(const char* fastaFileName, tiny_faidx_t& fai){
     }
     ifi.close();
     delete [] ifn;
-};
+}
 
 inline void getSequenceLength(const tiny_faidx_t& fai, const char* seqname, uint32_t& length){
 
@@ -277,11 +277,11 @@ inline void getSequenceLength(const tiny_faidx_t& fai, const char* seqname, uint
         fai.get(seqname, entry);
         length = entry->seq_len;
     }
-};
+}
 
 inline bool hasSequence(const tiny_faidx_t& fai, const char* seqname){
     return fai.hasSeqID(seqname);
-};
+}
 
 inline void getSequence( const tiny_faidx_t& fai, const char* seqname, char*& seq){
     uint32_t sz = 0;
@@ -316,7 +316,7 @@ inline void getSequence( const tiny_faidx_t& fai, const char* seqname, char*& se
         std::cerr << "No sequence found for ID: " << seqname << "." << std::endl;
     }
 
-};
+}
 
 inline void getSequence( const tiny_faidx_t& fai, const char* seqname,
                          char*& seq, int start, int end){
@@ -332,7 +332,7 @@ inline void getSequence( const tiny_faidx_t& fai, const char* seqname,
     memcpy(ret, seq + start, (end - start) * sizeof(char) );
     delete seq;
     seq = ret;
-};
+}
 
 }
 
