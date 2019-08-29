@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "pliib.hpp"
-#include "tinyfa.hpp"
+#include "tinyFA.hpp"
 
 using namespace std;
 using namespace TFA;
